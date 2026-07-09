@@ -1,9 +1,0 @@
-services:
-  yocto-build:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    volumes:
-      - ../build:/home/yocto/build
-    stdin_open: true
-    tty: true
