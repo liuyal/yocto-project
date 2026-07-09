@@ -72,22 +72,20 @@ yocto-project/
 └── sstate-cache/
 ```
 
-Save the following as `setup-workspace.sh`. It creates the entire directory layout and every file needed (Dockerfile, launch script, env script, custom layer, build configuration, and the Hello World app/recipes) in a single pass:
+Create the workspace layout and change into it:
 
 ```bash
-cat <<'SCRIPT' > setup-workspace.sh
-#!/bin/bash
-set -e
-
 PROJECT_ROOT=~/yocto-project
 
-# Workspace layout
 mkdir -p "$PROJECT_ROOT"/{docker,bitbake,openembedded-core,downloads,sstate-cache}
 mkdir -p "$PROJECT_ROOT"/meta-project/{conf/distro,conf/machine,recipes-apps/hello/files,recipes-core/images,recipes-kernel}
 mkdir -p "$PROJECT_ROOT"/build/conf
 cd "$PROJECT_ROOT"
+```
 
-# docker/Dockerfile
+Create `docker/Dockerfile`:
+
+```bash
 cat <<'EOF' > docker/Dockerfile
 FROM ubuntu:24.04
 
@@ -154,8 +152,11 @@ USER $USER_NAME
 
 WORKDIR /workspace
 EOF
+```
 
-# docker/run.sh
+Create `docker/run.sh`:
+
+```bash
 cat <<'EOF' > docker/run.sh
 #!/bin/bash
 
@@ -169,8 +170,11 @@ docker run \
     /bin/bash
 EOF
 chmod +x docker/run.sh
+```
 
-# env.sh (sourced inside the container)
+Create `env.sh` (sourced inside the container):
+
+```bash
 cat <<'EOF' > env.sh
 #!/bin/bash
 
@@ -180,8 +184,11 @@ export PATH=$PROJ_ROOT/bitbake/bin:$PATH
 
 export BBPATH=$PROJ_ROOT/build
 EOF
+```
 
-# meta-project/conf/layer.conf
+Create `meta-project/conf/layer.conf`:
+
+```bash
 cat <<'EOF' > meta-project/conf/layer.conf
 BBPATH .= ":${LAYERDIR}"
 
@@ -195,16 +202,22 @@ BBFILE_PRIORITY_project = "100"
 
 LAYERSERIES_COMPAT_project = "scarthgap"
 EOF
+```
 
-# build/conf/bblayers.conf
+Create `build/conf/bblayers.conf`:
+
+```bash
 cat <<'EOF' > build/conf/bblayers.conf
 BBLAYERS ?= " \
     /workspace/openembedded-core/meta \
     /workspace/meta-project \
 "
 EOF
+```
 
-# build/conf/local.conf
+Create `build/conf/local.conf`:
+
+```bash
 cat <<'EOF' > build/conf/local.conf
 MACHINE = "qemux86-64"
 
@@ -224,8 +237,11 @@ PARALLEL_MAKE = "-j8"
 # Disable the network connectivity sanity check (fails in restricted/offline environments)
 CONNECTIVITY_CHECK_URIS = ""
 EOF
+```
 
-# meta-project/conf/distro/project.conf
+Create `meta-project/conf/distro/project.conf`:
+
+```bash
 cat <<'EOF' > meta-project/conf/distro/project.conf
 DISTRO_NAME = "Project Distribution"
 
@@ -235,15 +251,21 @@ TARGET_VENDOR = "-project"
 
 PACKAGE_CLASSES ?= "package_rpm"
 EOF
+```
 
-# meta-project/conf/machine/qemux86-64.conf
+Create `meta-project/conf/machine/qemux86-64.conf`:
+
+```bash
 cat <<'EOF' > meta-project/conf/machine/qemux86-64.conf
 require conf/machine/include/qemuboot-x86.inc
 
 TARGET_ARCH = "x86_64"
 EOF
+```
 
-# meta-project/recipes-apps/hello/files/hello.c
+Create `meta-project/recipes-apps/hello/files/hello.c`:
+
+```bash
 cat <<'EOF' > meta-project/recipes-apps/hello/files/hello.c
 #include <stdio.h>
 
@@ -253,12 +275,17 @@ int main()
     return 0;
 }
 EOF
+```
 
-# meta-project/recipes-apps/hello/hello.bb
+Create `meta-project/recipes-apps/hello/hello.bb`:
+
+```bash
 cat <<'EOF' > meta-project/recipes-apps/hello/hello.bb
 SUMMARY = "Hello World"
 
 LICENSE = "MIT"
+
+LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
 
 SRC_URI = "file://hello.c"
 
@@ -273,8 +300,11 @@ do_install() {
     install -m 0755 hello ${D}${bindir}
 }
 EOF
+```
 
-# meta-project/recipes-core/images/project-image.bb
+Create `meta-project/recipes-core/images/project-image.bb`:
+
+```bash
 cat <<'EOF' > meta-project/recipes-core/images/project-image.bb
 SUMMARY = "Project Image"
 
@@ -284,18 +314,6 @@ inherit core-image
 
 IMAGE_INSTALL += "hello"
 EOF
-
-echo "Workspace created at $PROJECT_ROOT"
-SCRIPT
-
-chmod +x setup-workspace.sh
-```
-
-Run it:
-
-```bash
-./setup-workspace.sh
-cd ~/yocto-project
 ```
 
 # Step 2: Build the Docker Image
@@ -383,6 +401,12 @@ Build the hello package:
 ```bash
 bitbake hello
 ```
+
+> **Note:** Any recipe with a `SRC_URI` that fetches files (like `hello.bb` above) must declare `LIC_FILES_CHKSUM`, otherwise the `do_populate_lic` task fails with `QA Issue: ... does not have license file information (LIC_FILES_CHKSUM)`. The recipe in Step 1 already includes:
+> ```bitbake
+> LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
+> ```
+> This points at the well-known MIT license text shipped with OE-Core (`meta/files/common-licenses/MIT`). If you hit this error, re-check `hello.bb` for this line.
 
 Outputs are generated under:
 
