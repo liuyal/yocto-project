@@ -6,6 +6,8 @@
 
 set -e  # Exit on error
 
+# Resolve this script location so we can copy template helper scripts reliably.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT=~/yocto-project
 
 echo "=========================================="
@@ -250,6 +252,12 @@ IMAGE_FEATURES += "debug-tweaks"
 EOF
 
 echo ""
+echo "Creating run helper scripts..."
+echo "  → run-image.sh"
+cp "$SCRIPT_DIR/run-image.sh" "$PROJECT_ROOT/run-image.sh"
+chmod +x "$PROJECT_ROOT/run-image.sh"
+
+echo ""
 echo "=========================================="
 echo "✓ Step 1 Complete!"
 echo "=========================================="
@@ -280,4 +288,6 @@ echo "  git clone -b 2.8 https://github.com/openembedded/bitbake.git"
 echo "  git clone -b scarthgap https://github.com/openembedded/openembedded-core.git"
 echo "  source env.sh"
 echo ""
-
+echo "Step 6: Build image"
+echo "  bitbake project-image"
+echo ""

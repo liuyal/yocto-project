@@ -488,65 +488,14 @@ project-image.rootfs.tar.gz
 ```
 
 Run the image in QEMU:
-
 ```bash
-# Install QEMU (first time only, or add to Dockerfile)
-sudo apt-get install -y qemu-system-x86
-
-# Option A: wrapper script (recommended)
 chmod +x run-image.sh
 ./run-image.sh nographic
-
-# Option B: direct QEMU invocation
-qemu-system-x86_64 \
-    -kernel build/tmp/deploy/images/qemux86-64/bzImage \
-    -cpu IvyBridge \
-    -machine q35,i8042=off \
-    -m 256 \
-    -smp 4 \
-    -device virtio-scsi-pci,id=scsi0 \
-    -device scsi-hd,drive=disk0 \
-    -drive id=disk0,file=build/tmp/deploy/images/qemux86-64/project-image-qemux86-64.ext4,if=none,format=raw \
-    -netdev user,id=net0 \
-    -device virtio-net-pci,netdev=net0,mac=52:54:00:12:34:02 \
-    -object rng-random,filename=/dev/urandom,id=rng0 \
-    -device virtio-rng-pci,rng=rng0 \
-    -usb -device usb-tablet \
-    -usb -device usb-kbd \
-    -serial mon:stdio \
-    -serial null \
-    -nographic \
-    -append "root=/dev/sda rw console=ttyS0,115200 oprofile.timer=1 tsc=reliable no_timer_check rcupdate.rcu_expedited=1 swiotlb=0"
 ```
 
 Login as `root` (no password). Exit QEMU with `Ctrl+A` then `X`.
 
-# Step 9: Create a Kernel Recipe
-
-Create:
-
-```text
-meta-project/
-└── recipes-kernel/
-    └── linux/
-        └── linux-project.bb
-```
-
-Example:
-
-```bitbake
-SUMMARY = "Custom Linux Kernel"
-
-LICENSE = "GPLv2"
-
-SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git"
-
-SRCREV = "HEAD"
-
-inherit kernel
-```
-
-# Step 10: Recommended Production Layer Layout
+# Step 9: Recommended Production Layer Layout
 
 ```text
 yocto-project/
@@ -578,6 +527,27 @@ yocto-project/
 └── sstate-cache/
 ```
 
+ex. Create a Kernel Recipe:
+```text
+meta-project/
+└── recipes-kernel/
+    └── linux/
+        └── linux-project.bb
+```
+
+Example:
+```bitbake
+SUMMARY = "Custom Linux Kernel"
+
+LICENSE = "GPLv2"
+
+SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git"
+
+SRCREV = "HEAD"
+
+inherit kernel
+```
+
 Layer responsibilities:
 
 ### meta-project
@@ -594,7 +564,7 @@ Board Support Package (BSP):
 - Firmware
 - Platform configuration
 
-# Step 11: Useful BitBake Commands
+# Useful BitBake Commands
 
 Show environment:
 
@@ -638,7 +608,7 @@ Generate dependency graphs:
 bitbake -g project-image
 ```
 
-# Step 12: Docker Cache Optimization
+# Docker Cache Optimization
 
 The `downloads/` and `sstate-cache/` directories were already created in Step 1 and are mounted into the container via `docker/run.sh`:
 
@@ -655,7 +625,7 @@ Benefits:
 - Reduced network downloads
 - Improved CI/CD performance
 
-# Step 13: CI/CD Example
+# CI/CD Example
 
 Build Docker image:
 
