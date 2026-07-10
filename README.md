@@ -346,6 +346,8 @@ inherit core-image
 IMAGE_INSTALL += "hello"
 
 IMAGE_NAME_SUFFIX = ""
+
+IMAGE_LINK_NAME = "${IMAGE_BASENAME}-${MACHINE}"
 EOF
 ```
 
