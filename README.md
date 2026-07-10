@@ -101,7 +101,6 @@ yocto-project/
 ```
 
 Create the workspace layout and change into it:
-
 ```bash
 PROJECT_ROOT=~/yocto-project
 
@@ -112,7 +111,6 @@ cd "$PROJECT_ROOT"
 ```
 
 Create `docker/Dockerfile`:
-
 ```bash
 cat <<'EOF' > docker/Dockerfile
 FROM ubuntu:24.04
@@ -184,7 +182,6 @@ EOF
 ```
 
 Create `docker/run.sh`:
-
 ```bash
 cat <<'EOF' > docker/run.sh
 #!/bin/bash
@@ -202,7 +199,6 @@ chmod +x docker/run.sh
 ```
 
 Create `env.sh` (sourced inside the container):
-
 ```bash
 cat <<'EOF' > env.sh
 #!/bin/bash
@@ -217,7 +213,6 @@ EOF
 ```
 
 Create `meta-project/conf/layer.conf`:
-
 ```bash
 cat <<'EOF' > meta-project/conf/layer.conf
 BBPATH .= ":${LAYERDIR}"
@@ -235,7 +230,6 @@ EOF
 ```
 
 Create `build/conf/bblayers.conf`:
-
 ```bash
 cat <<'EOF' > build/conf/bblayers.conf
 BBLAYERS ?= " \
@@ -246,7 +240,6 @@ EOF
 ```
 
 Create `build/conf/local.conf`:
-
 ```bash
 cat <<'EOF' > build/conf/local.conf
 MACHINE = "qemux86-64"
@@ -272,7 +265,6 @@ EOF
 ```
 
 Create `meta-project/conf/distro/project.conf`:
-
 ```bash
 cat <<'EOF' > meta-project/conf/distro/project.conf
 DISTRO_NAME = "Project Distribution"
@@ -286,7 +278,6 @@ EOF
 ```
 
 Create `meta-project/conf/machine/qemux86-64.conf`:
-
 ```bash
 cat <<'EOF' > meta-project/conf/machine/qemux86-64.conf
 require conf/machine/include/qemuboot-x86.inc
@@ -296,7 +287,6 @@ EOF
 ```
 
 Create `meta-project/recipes-apps/hello/files/hello.c`:
-
 ```bash
 cat <<'EOF' > meta-project/recipes-apps/hello/files/hello.c
 #include <stdio.h>
@@ -310,7 +300,6 @@ EOF
 ```
 
 Create `meta-project/recipes-apps/hello/hello.bb`:
-
 ```bash
 cat <<'EOF' > meta-project/recipes-apps/hello/hello.bb
 SUMMARY = "Hello World"
@@ -335,7 +324,6 @@ EOF
 ```
 
 Create `meta-project/recipes-core/images/project-image.bb`:
-
 ```bash
 cat <<'EOF' > meta-project/recipes-core/images/project-image.bb
 SUMMARY = "Project Image"
