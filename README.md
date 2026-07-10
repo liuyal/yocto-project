@@ -209,6 +209,7 @@ cat <<'EOF' > env.sh
 export PROJ_ROOT=/workspace
 
 export PATH=$PROJ_ROOT/bitbake/bin:$PATH
+export PATH=$PROJ_ROOT/openembedded-core/scripts:$PATH
 
 export BBPATH=$PROJ_ROOT/build
 EOF
@@ -256,6 +257,8 @@ DL_DIR = "/workspace/downloads"
 SSTATE_DIR = "/workspace/sstate-cache"
 
 TMPDIR = "${TOPDIR}/tmp"
+
+TCLIBCAPPEND = ""
 
 PACKAGE_CLASSES = "package_rpm"
 
@@ -341,6 +344,8 @@ LICENSE = "MIT"
 inherit core-image
 
 IMAGE_INSTALL += "hello"
+
+IMAGE_NAME_SUFFIX = ""
 EOF
 ```
 
@@ -487,6 +492,12 @@ Example artifacts:
 bzImage
 project-image.rootfs.ext4
 project-image.rootfs.tar.gz
+```
+
+Run the image in QEMU:
+
+```bash
+runqemu qemux86-64 project-image
 ```
 
 # Step 9: Create a Kernel Recipe
